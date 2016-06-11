@@ -2,6 +2,7 @@
 var fs = require('fs'),
     Metrics = require('./metrics');
  
+console.log('Initialize');
 
 function main(config) {
     var ws = require("./ws"),
