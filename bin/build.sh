@@ -6,10 +6,16 @@ cd `dirname "$0"`
 set -e
 
 SCRIPTDIR=`pwd -P`
-#BUILDDIR=/usr/share/nginx/html
-BUILDDIR="../client-build"
 PROJECTDIR="../client/js"
 
+if test -f /etc/nginx/conf.d/default.conf
+then
+  LOCAL=false
+  BUILDDIR=/usr/share/nginx/html
+else
+  LOCAL=true
+  BUILDDIR="../client-build"
+fi
 
 echo "Deleting previous build directory"
 rm -rf $BUILDDIR
@@ -19,10 +25,12 @@ cd $PROJECTDIR
 perl -p -e "s'dir: .*'dir: \"$BUILDDIR\",'" build.js >build-mod.js
 
 echo "Building client with RequireJS"
-cd "$THISDIR"
+
+cd "$SCRIPTDIR"
 mkdir -p "$BUILDDIR"/js
-cp -r ../../shared "$BUILDDIR"/..
-ls /usr/share/nginx/html/js/../../shared/js/gametypes.js
+
+cp -r ../shared/js "$BUILDDIR"/
+#ls /usr/share/nginx/html/js/../../shared/js/gametypes.js
 
 node ../../bin/r.js -o build-mod.js
 
@@ -40,4 +48,4 @@ mv "$BUILDDIR"/build.txt .
 
 echo "Build complete"
 
-chown nginx:nginx -R "$BUILDDIR"
+LOCAL || chown nginx:nginx -R "$BUILDDIR"
